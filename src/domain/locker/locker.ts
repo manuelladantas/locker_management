@@ -8,4 +8,5 @@ export type Locker = {
 	bloqId: String;
 	status: LockerStatus;
 	isOccupied: boolean;
+	maxWeight: number;
 };
