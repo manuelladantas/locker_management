@@ -4,8 +4,8 @@ export enum SecretStatus {
 }
 
 export type Secret = {
-	id?: String;
-	lockerId: String;
+	id?: string;
+	lockerId: string;
 	status: SecretStatus;
-	password: String;
+	password: string;
 };

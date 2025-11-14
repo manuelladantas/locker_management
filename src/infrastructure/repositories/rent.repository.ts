@@ -45,4 +45,15 @@ export class RentRepository implements IRentRepo {
 
 		return updatedItem;
 	}
+
+	async createRent(rent: Rent): Promise<Rent> {
+		try {
+			const data = await this.getRents();
+			data.push(rent);
+			await writeFile(this.filePath, JSON.stringify(data, null, 2), 'utf-8');
+			return rent;
+		} catch (error) {
+			throw error;
+		}
+	}
 }

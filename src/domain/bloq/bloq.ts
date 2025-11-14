@@ -1,5 +1,5 @@
 export type Bloq = {
-	id: String;
-	title: String;
-	address: String;
+	id: string;
+	title: string;
+	address: string;
 };

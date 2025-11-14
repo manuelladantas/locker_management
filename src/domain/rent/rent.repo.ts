@@ -4,4 +4,5 @@ export default interface IRentRepo {
 	getRents(): Promise<Rent[]>;
 	getRentById(id: string): Promise<Rent | undefined>;
 	updateById(id: string, updatedData: Partial<Rent>): Promise<Rent | undefined>;
+	createRent(Rent: Rent): Promise<Rent>;
 }

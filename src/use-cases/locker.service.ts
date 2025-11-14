@@ -1,3 +1,4 @@
+import IBloqRepo from '../domain/bloq/bloq.repo';
 import { LockerStatus } from '../domain/locker/locker';
 import ILockerRepo from '../domain/locker/locker.repo';
 import { Rent } from '../domain/rent/rent';
@@ -12,6 +13,7 @@ export class LockerService implements ILockerService {
 	constructor(
 		private repo: ILockerRepo,
 		private secretRepo: ISecretRepo,
+		private bloqRepo: IBloqRepo,
 	) {
 		this.repo = new LockerRepository();
 		this.secretRepo = new SecretsRepository();
@@ -49,8 +51,8 @@ export class LockerService implements ILockerService {
 		};
 		this.secretRepo.createSecret(secret);
 
-		//return address too
+		const bloq = await this.bloqRepo.getBloqById(availableLocker.bloqId);
 
-		return `${availableLocker.id} - ${secret.password}`;
+		return `${availableLocker.id} - ${secret.password} - ${bloq?.address}`;
 	}
 }

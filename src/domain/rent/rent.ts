@@ -1,11 +1,11 @@
-enum RentStatus {
+export enum RentStatus {
 	CREATED,
 	WAITING_DROPOFF,
 	WAITING_PICKUP,
 	DELIVERED,
 }
 
-enum RentSize {
+export enum RentSize {
 	XS,
 	S,
 	M,
@@ -14,8 +14,8 @@ enum RentSize {
 }
 
 export type Rent = {
-	id: String;
-	lockerId: string;
+	id: string;
+	lockerId: string | null;
 	weight: number;
 	size: RentSize;
 	status: RentStatus;

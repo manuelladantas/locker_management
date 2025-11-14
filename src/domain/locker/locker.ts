@@ -4,8 +4,8 @@ export enum LockerStatus {
 }
 
 export type Locker = {
-	id: String;
-	bloqId: String;
+	id: string;
+	bloqId: string;
 	status: LockerStatus;
 	isOccupied: boolean;
 	maxWeight: number;
