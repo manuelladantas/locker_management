@@ -20,10 +20,10 @@ export class SecretsRepository implements ISecretRepo {
 		}
 	}
 
-	async getSecretById(id: string): Promise<Secret | undefined> {
+	async getSecret(lockerId: string, password: string): Promise<Secret | undefined> {
 		try {
 			const secrets = await this.getSecrets();
-			const item = secrets.find((secret) => secret.id === id);
+			const item = secrets.find((secret) => secret.password === password && secret.lockerId === lockerId);
 			return item;
 		} catch (error) {
 			console.error('Error finding secret by ID:', error);

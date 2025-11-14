@@ -1,4 +1,4 @@
-enum LockerStatus {
+export enum LockerStatus {
 	OPEN,
 	CLOSED,
 }

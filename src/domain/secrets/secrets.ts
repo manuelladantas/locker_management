@@ -1,11 +1,11 @@
-enum SecretStatus {
+export enum SecretStatus {
 	ENABLE,
 	DISABLED,
 }
 
 export type Secret = {
-	id: String;
-	bloqId: String;
+	id?: String;
+	lockerId: String;
 	status: SecretStatus;
 	password: String;
 };

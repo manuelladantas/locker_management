@@ -1,4 +1,4 @@
-import { readFile } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
 import ILockerRepo from '../../domain/locker/locker.repo';
 import { Locker } from '../../domain/locker/locker';
 
@@ -40,5 +40,18 @@ export class LockerRepository implements ILockerRepo {
 			console.error('Error finding locker by ID:', error);
 			throw error;
 		}
+	}
+
+	async updateById(id: string, updatedData: Partial<Locker>): Promise<void> {
+		const data = await this.getLockers();
+
+		const index = data.findIndex((item) => item.id === id);
+		if (index === -1) return;
+
+		const updatedItem = { ...data[index], ...updatedData };
+
+		data[index] = updatedItem;
+
+		await writeFile(this.filePath, JSON.stringify(data, null, 2), 'utf-8');
 	}
 }
