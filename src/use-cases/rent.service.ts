@@ -3,29 +3,14 @@ import { Rent, RentSize, RentStatus } from '../domain/rent/rent';
 import IRentRepo from '../domain/rent/rent.repo';
 import { RentRepository } from '../infrastructure/repositories/rent.repository';
 
-export interface IRentService {}
+export interface IRentService {
+	createRent(weight: number, size: RentSize): Promise<Rent>;
+}
 
 export class RentService implements IRentService {
-	constructor(private repo: IRentRepo) {
+	private repo: IRentRepo;
+	constructor() {
 		this.repo = new RentRepository();
-	}
-
-	async dropOffRent(id: string): Promise<void> {
-		this.repo.updateById(id, {
-			status: RentStatus.WAITING_PICKUP,
-		});
-	}
-
-	async pickUpRent(id: string): Promise<void> {
-		this.repo.updateById(id, {
-			status: RentStatus.DELIVERED,
-		});
-	}
-
-	async setRentToLocker(id: string): Promise<void> {
-		this.repo.updateById(id, {
-			status: RentStatus.WAITING_DROPOFF,
-		});
 	}
 
 	async createRent(weight: number, size: RentSize): Promise<Rent> {
@@ -34,7 +19,7 @@ export class RentService implements IRentService {
 			lockerId: null,
 			weight,
 			size,
-			status: RentStatus.WAITING_DROPOFF,
+			status: RentStatus.CREATED,
 		});
 	}
 }

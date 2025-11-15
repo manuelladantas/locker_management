@@ -1,10 +1,10 @@
 export enum SecretStatus {
-	ENABLE,
-	DISABLED,
+	ENABLE = 'ENABLE',
+	DISABLED = 'DISABLED',
 }
 
 export type Secret = {
-	id?: string;
+	id: string;
 	lockerId: string;
 	status: SecretStatus;
 	password: string;

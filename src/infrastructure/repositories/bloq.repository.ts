@@ -21,13 +21,8 @@ export class BloqRepository implements IBloqRepo {
 	}
 
 	async getBloqById(id: string): Promise<Bloq | undefined> {
-		try {
-			const bloqs = await this.getBloqs();
-			const item = bloqs.find((bloq) => bloq.id === id);
-			return item;
-		} catch (error) {
-			console.error('Error finding bloq by ID:', error);
-			throw error;
-		}
+		const bloqs = await this.getBloqs();
+		const item = bloqs.find((bloq) => bloq.id === id);
+		return item;
 	}
 }

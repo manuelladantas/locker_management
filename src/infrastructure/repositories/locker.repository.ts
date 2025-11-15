@@ -21,37 +21,35 @@ export class LockerRepository implements ILockerRepo {
 	}
 
 	async getLockerById(id: string): Promise<Locker | undefined> {
-		try {
-			const lockers = await this.getLockers();
-			const item = lockers.find((locker) => locker.id === id);
-			return item;
-		} catch (error) {
-			console.error('Error finding locker by ID:', error);
-			throw error;
-		}
+		const lockers = await this.getLockers();
+		const item = lockers.find((locker) => locker.id === id);
+		return item;
 	}
 
-	async getMatchedLocker(rentWeight: number): Promise<Locker | undefined> {
-		try {
-			const lockers = await this.getLockers();
-			const item = lockers.find((locker) => locker.maxWeight >= rentWeight && locker.isOccupied === false);
-			return item;
-		} catch (error) {
-			console.error('Error finding locker by ID:', error);
-			throw error;
+	async getMatchedLocker(rentWeight: number): Promise<Locker> {
+		const lockers = await this.getLockers();
+		const item = lockers.find((locker) => locker.maxWeight >= rentWeight && locker.isOccupied === false);
+
+		if (!item) {
+			throw new Error('Cannot find a locker to this rent');
 		}
+		return item;
 	}
 
-	async updateById(id: string, updatedData: Partial<Locker>): Promise<void> {
+	async updateById(id: string, updatedData: Partial<Locker>): Promise<Locker> {
 		const data = await this.getLockers();
 
 		const index = data.findIndex((item) => item.id === id);
-		if (index === -1) return;
+		if (index === -1) {
+			throw new Error('Locker doesnt exists');
+		}
 
 		const updatedItem = { ...data[index], ...updatedData };
 
 		data[index] = updatedItem;
 
 		await writeFile(this.filePath, JSON.stringify(data, null, 2), 'utf-8');
+
+		return updatedItem;
 	}
 }

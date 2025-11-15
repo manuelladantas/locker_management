@@ -21,21 +21,18 @@ export class RentRepository implements IRentRepo {
 	}
 
 	async getRentById(id: string): Promise<Rent | undefined> {
-		try {
-			const rents = await this.getRents();
-			const item = rents.find((rent) => rent.id === id);
-			return item;
-		} catch (error) {
-			console.error('Error finding rent by ID:', error);
-			throw error;
-		}
+		const rents = await this.getRents();
+		const item = rents.find((rent) => rent.id === id);
+		return item;
 	}
 
-	async updateById(id: string, updatedData: Partial<Rent>): Promise<Rent | undefined> {
+	async updateById(id: string, updatedData: Partial<Rent>): Promise<Rent> {
 		const data = await this.getRents();
 
 		const index = data.findIndex((item) => item.id === id);
-		if (index === -1) return;
+		if (index === -1) {
+			throw new Error('This rent doesnt exist');
+		}
 
 		const updatedItem = { ...data[index], ...updatedData };
 
@@ -47,13 +44,9 @@ export class RentRepository implements IRentRepo {
 	}
 
 	async createRent(rent: Rent): Promise<Rent> {
-		try {
-			const data = await this.getRents();
-			data.push(rent);
-			await writeFile(this.filePath, JSON.stringify(data, null, 2), 'utf-8');
-			return rent;
-		} catch (error) {
-			throw error;
-		}
+		const data = await this.getRents();
+		data.push(rent);
+		await writeFile(this.filePath, JSON.stringify(data, null, 2), 'utf-8');
+		return rent;
 	}
 }
