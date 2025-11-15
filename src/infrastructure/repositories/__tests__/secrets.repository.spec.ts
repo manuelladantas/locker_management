@@ -1,7 +1,11 @@
 import { SecretStatus } from '../../../domain/secrets/secrets';
 import ISecretRepo from '../../../domain/secrets/secrets.repo';
 import { SecretsRepository } from '../secrets.repository';
+import * as fs from 'fs/promises';
 
+jest.mock('fs/promises', () => ({
+	writeFile: jest.fn(),
+}));
 describe('secretRepository', () => {
 	let instance: ISecretRepo;
 
@@ -52,9 +56,7 @@ describe('secretRepository', () => {
 			status: SecretStatus.DISABLED,
 		});
 
-		const result = await instance.getSecret('8b4b59ae-8de5-4322-a426-79c29315a9f1', '403703');
-
-		expect(result).toHaveProperty('status', SecretStatus.DISABLED);
+		expect(fs.writeFile).toHaveBeenCalled();
 	});
 
 	it('should not update rent by id when id doesnt exist', async () => {

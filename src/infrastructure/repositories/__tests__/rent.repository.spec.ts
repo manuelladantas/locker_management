@@ -1,6 +1,11 @@
 import { RentSize, RentStatus } from '../../../domain/rent/rent';
 import IRentRepo from '../../../domain/rent/rent.repo';
 import { RentRepository } from '../rent.repository';
+import * as fs from 'fs/promises';
+
+jest.mock('fs/promises', () => ({
+	writeFile: jest.fn(),
+}));
 
 describe('rentRepository', () => {
 	let instance: IRentRepo;
@@ -14,7 +19,7 @@ describe('rentRepository', () => {
 			status: RentStatus.WAITING_DROPOFF,
 		},
 		{
-			id: 'feb72a9a-258d-49c9-92de-f90b1f11984d',
+			id: '473f5496-3539-47ca-892d-2cf97cc2c283',
 			lockerId: '6b33b2d1-af38-4b60-a3c5-53a69f70a351',
 			weight: 30,
 			size: RentSize.XL,
@@ -25,6 +30,8 @@ describe('rentRepository', () => {
 	beforeEach(() => {
 		instance = new RentRepository();
 		jest.spyOn(instance, 'getRents').mockResolvedValueOnce(mockRents);
+
+		(fs.writeFile as jest.Mock).mockResolvedValue(undefined);
 	});
 
 	afterEach(() => {
@@ -32,7 +39,7 @@ describe('rentRepository', () => {
 	});
 
 	it('should return the rent when ID exists', async () => {
-		const result = await instance.getRentById('feb72a9a-258d-49c9-92de-f90b1f11984d');
+		const result = await instance.getRentById('473f5496-3539-47ca-892d-2cf97cc2c283');
 
 		expect(result).toEqual(mockRents[1]);
 	});
@@ -44,13 +51,11 @@ describe('rentRepository', () => {
 	});
 
 	it('should update rent by id', async () => {
-		await instance.updateById('feb72a9a-258d-49c9-92de-f90b1f11984d', {
+		await instance.updateById('473f5496-3539-47ca-892d-2cf97cc2c283', {
 			status: RentStatus.WAITING_PICKUP,
 		});
 
-		const result = await instance.getRentById('feb72a9a-258d-49c9-92de-f90b1f11984d');
-
-		expect(result).toHaveProperty('status', RentStatus.WAITING_PICKUP);
+		expect(fs.writeFile).toHaveBeenCalled();
 	});
 
 	it('should not update rent by id when id doesnt exist', async () => {

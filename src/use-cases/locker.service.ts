@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import IBloqRepo from '../domain/bloq/bloq.repo';
-import { LockerStatus } from '../domain/locker/locker';
+import { Locker, LockerStatus } from '../domain/locker/locker';
 import ILockerRepo from '../domain/locker/locker.repo';
 import { Rent, RentStatus } from '../domain/rent/rent';
 import IRentRepo from '../domain/rent/rent.repo';
@@ -12,8 +12,8 @@ import { RentRepository } from '../infrastructure/repositories/rent.repository';
 import { SecretsRepository } from '../infrastructure/repositories/secrets.repository';
 
 export interface ILockerService {
-	openLocker(id: string, password: string): Promise<void>;
-	closeLocker(id: string): Promise<void>;
+	openLocker(id: string, password: string): Promise<Locker>;
+	closeLocker(id: string): Promise<Locker>;
 	getAvailableLocker(rentId: string): Promise<string>;
 	pickUpRent(id: string): Promise<void>;
 	setRentToLocker(id: string, lockerId: string): Promise<void>;
@@ -31,20 +31,20 @@ export class LockerService implements ILockerService {
 		this.rentRepo = new RentRepository();
 	}
 
-	async openLocker(id: string, password: string): Promise<void> {
+	async openLocker(id: string, password: string): Promise<Locker> {
 		const secret = await this.secretRepo.getSecret(id, password);
 
 		if (!secret) {
 			throw new Error('Wrong secret');
 		}
 
-		this.repo.updateById(id, {
+		return this.repo.updateById(id, {
 			status: LockerStatus.OPEN,
 		});
 	}
 
-	async closeLocker(id: string): Promise<void> {
-		this.repo.updateById(id, {
+	async closeLocker(id: string): Promise<Locker> {
+		return this.repo.updateById(id, {
 			status: LockerStatus.CLOSED,
 		});
 	}
@@ -74,7 +74,7 @@ export class LockerService implements ILockerService {
 
 		const bloq = await this.bloqRepo.getBloqById(availableLocker.bloqId);
 
-		return `lockerId: ${availableLocker.id} - secret: ${secret.password} - ${bloq?.address}`;
+		return `lockerId: ${availableLocker.id} - secret: ${secret.password} - bloq address: ${bloq?.address}`;
 	}
 
 	async pickUpRent(id: string): Promise<void> {

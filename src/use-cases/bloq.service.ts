@@ -7,7 +7,8 @@ export interface IBloqService {
 }
 
 export class BloqService implements IBloqService {
-	constructor(private repo: IBloqRepo) {
+	private repo: IBloqRepo;
+	constructor() {
 		this.repo = new BloqRepository();
 	}
 
