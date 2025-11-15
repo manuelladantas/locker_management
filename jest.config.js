@@ -4,8 +4,9 @@ module.exports = {
 	// Set the test environment to Node.js
 	testEnvironment: 'node',
 
-	// Define the root directory for tests and modules
-	roots: ['<rootDir>/tests'],
+	moduleNameMapper: {
+		'^~/(.*)$': '<rootDir>/src/$1',
+	},
 
 	// Use ts-jest to transform TypeScript files
 	transform: {

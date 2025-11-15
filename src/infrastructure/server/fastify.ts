@@ -1,9 +1,17 @@
 import fastify from 'fastify';
 import { bloqRoutes } from '../../presentation/bloq.fastify';
+import { rentRoutes } from '../../presentation/rent.fastify';
+import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
+import { lockerRoutes } from '../../presentation/locker.fastify';
 
 const server = fastify();
 
+server.register(rentRoutes);
 server.register(bloqRoutes);
+server.register(lockerRoutes);
+
+server.setValidatorCompiler(validatorCompiler);
+server.setSerializerCompiler(serializerCompiler);
 
 export const start = async () => {
 	try {
