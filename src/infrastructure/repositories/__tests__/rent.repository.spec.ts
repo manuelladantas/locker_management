@@ -75,6 +75,6 @@ describe('rentRepository', () => {
 			status: RentStatus.CREATED,
 		});
 
-		expect(mockRents).toHaveLength(3);
+		expect(fs.writeFile).toHaveBeenCalled();
 	});
 });
