@@ -1,8 +1,9 @@
-import { BloqRepository } from '../../infrastructure/repositories/bloq.repository';
+import IBloqRepo from '../../domain/bloq/bloq.repo';
 import { BloqService, IBloqService } from '../bloq.service';
 
 describe('bloqService', () => {
 	let instance: IBloqService;
+	let mockBloqRepo: jest.Mocked<IBloqRepo>;
 
 	const mockBloqs = [
 		{
@@ -13,8 +14,11 @@ describe('bloqService', () => {
 	];
 
 	beforeEach(() => {
-		jest.spyOn(BloqRepository.prototype, 'getBloqs').mockResolvedValueOnce(mockBloqs);
-		instance = new BloqService(new BloqRepository());
+		mockBloqRepo = {
+			getBloqs: jest.fn().mockResolvedValue(mockBloqs),
+			getBloqById: jest.fn(),
+		} as jest.Mocked<IBloqRepo>;
+		instance = new BloqService(mockBloqRepo);
 	});
 
 	afterEach(() => {

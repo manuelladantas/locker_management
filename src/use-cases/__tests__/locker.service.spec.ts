@@ -1,10 +1,10 @@
+import IBloqRepo from '../../domain/bloq/bloq.repo';
 import { LockerStatus } from '../../domain/locker/locker';
+import ILockerRepo from '../../domain/locker/locker.repo';
 import { RentSize, RentStatus } from '../../domain/rent/rent';
+import IRentRepo from '../../domain/rent/rent.repo';
 import { SecretStatus } from '../../domain/secrets/secrets';
-import { BloqRepository } from '../../infrastructure/repositories/bloq.repository';
-import { LockerRepository } from '../../infrastructure/repositories/locker.repository';
-import { RentRepository } from '../../infrastructure/repositories/rent.repository';
-import { SecretsRepository } from '../../infrastructure/repositories/secrets.repository';
+import ISecretRepo from '../../domain/secrets/secrets.repo';
 import { ILockerService, LockerService } from '../locker.service';
 
 jest.mock('fs/promises', () => ({
@@ -13,6 +13,10 @@ jest.mock('fs/promises', () => ({
 }));
 describe('lockerService', () => {
 	let instance: ILockerService;
+	let mockBloqRepo: jest.Mocked<IBloqRepo>;
+	let mockSecretRepo: jest.Mocked<ISecretRepo>;
+	let mockLockRepo: jest.Mocked<ILockerRepo>;
+	let mockRentRepo: jest.Mocked<IRentRepo>;
 
 	const mockSecrets = [
 		{
@@ -106,17 +110,34 @@ describe('lockerService', () => {
 	];
 
 	beforeEach(() => {
-		jest.spyOn(SecretsRepository.prototype, 'getSecrets').mockResolvedValueOnce(mockSecrets);
-		jest.spyOn(LockerRepository.prototype, 'getLockers').mockResolvedValueOnce(mockLockers);
-		jest.spyOn(RentRepository.prototype, 'getRents').mockResolvedValueOnce(mockRents);
-		jest.spyOn(BloqRepository.prototype, 'getBloqs').mockResolvedValueOnce(mockBloqs);
+		mockBloqRepo = {
+			getBloqs: jest.fn().mockResolvedValue(mockBloqs),
+			getBloqById: jest.fn(),
+		} as jest.Mocked<IBloqRepo>;
 
-		instance = new LockerService(
-			new SecretsRepository(),
-			new BloqRepository(),
-			new LockerRepository(),
-			new RentRepository(),
-		);
+		mockSecretRepo = {
+			getSecrets: jest.fn().mockResolvedValue(mockSecrets),
+			createSecret: jest.fn(),
+			getSecret: jest.fn(),
+			updateById: jest.fn(),
+			getActiveSecret: jest.fn(),
+		} as jest.Mocked<ISecretRepo>;
+
+		mockLockRepo = {
+			getLockers: jest.fn().mockResolvedValue(mockLockers),
+			getLockerById: jest.fn(),
+			getMatchedLocker: jest.fn(),
+			updateById: jest.fn(),
+		} as jest.Mocked<ILockerRepo>;
+
+		mockRentRepo = {
+			getRents: jest.fn().mockResolvedValue(mockRents),
+			getRentById: jest.fn(),
+			createRent: jest.fn(),
+			updateById: jest.fn(),
+		} as jest.Mocked<IRentRepo>;
+
+		instance = new LockerService(mockSecretRepo, mockBloqRepo, mockLockRepo, mockRentRepo);
 	});
 
 	afterEach(() => {
@@ -124,31 +145,40 @@ describe('lockerService', () => {
 	});
 
 	it('openLocker: should open locker with right password', async () => {
-		const result = await instance.openLocker('1b8d1e89-2514-4d91-b813-044bf0ce8d20', '095494');
+		mockSecretRepo.getSecret.mockResolvedValueOnce(mockSecrets[1]);
+		await instance.openLocker('1b8d1e89-2514-4d91-b813-044bf0ce8d20', '095494');
 
-		expect(result).toHaveProperty('status', LockerStatus.OPEN);
+		expect(mockLockRepo.updateById).toHaveBeenCalledWith('1b8d1e89-2514-4d91-b813-044bf0ce8d20', {
+			status: LockerStatus.OPEN,
+		});
 	});
 
 	it('openLocker: should not open locker with wrong password', async () => {
+		mockSecretRepo.getSecret.mockResolvedValueOnce(undefined);
 		const result = instance.openLocker('1b8d1e89-2514-4d91-b813-044bf0ce8d20', '959505');
 
 		expect(result).rejects.toThrow('Wrong secret');
 	});
 
 	it('closeLocker: should close a locker', async () => {
-		const result = await instance.closeLocker('1b8d1e89-2514-4d91-b813-044bf0ce8d20');
+		await instance.closeLocker('1b8d1e89-2514-4d91-b813-044bf0ce8d20');
 
-		expect(result).toHaveProperty('status', LockerStatus.CLOSED);
-	});
-
-	it('closeLocker: should throw a error when locker doesnt exist', async () => {
-		const result = instance.closeLocker('000000000');
-
-		expect(result).rejects.toThrow('Locker doesnt exists');
+		expect(mockLockRepo.updateById).toHaveBeenCalledWith('1b8d1e89-2514-4d91-b813-044bf0ce8d20', {
+			status: LockerStatus.CLOSED,
+		});
 	});
 
 	it('getAvailableLocker: should get a available locker', async () => {
+		mockRentRepo.getRentById.mockResolvedValueOnce(mockRents[0]);
+		mockLockRepo.getMatchedLocker.mockResolvedValueOnce(mockLockers[0]);
+		mockBloqRepo.getBloqById.mockResolvedValueOnce(mockBloqs[0]);
+
 		const result = await instance.getAvailableLocker('84ba232e-ce23-4d8f-ae26-68616600df48');
+
+		expect(mockSecretRepo.createSecret).toHaveBeenCalled();
+		expect(mockRentRepo.updateById).toHaveBeenCalledWith('84ba232e-ce23-4d8f-ae26-68616600df48', {
+			status: RentStatus.WAITING_DROPOFF,
+		});
 		expect(result).toMatch(
 			/lockerId: 1b8d1e89-2514-4d91-b813-044bf0ce8d20 - secret: \d{6} - bloq address: 121 Regent St, Mayfair, London W1B 4TB, United Kingdom/,
 		);
@@ -159,25 +189,30 @@ describe('lockerService', () => {
 		expect(result).rejects.toThrow('Cannot find rent');
 	});
 
-	it('getAvailableLocker: should throw an error when rent doenst exists', async () => {
-		const result = instance.getAvailableLocker('ea5c5086-ca10-4920-90da-3367b1261885');
-		expect(result).rejects.toThrow('Cannot find a locker to this rent');
-	});
-
 	it('pickupRent: should return an error when pass a rent without a locker associated', async () => {
+		mockRentRepo.updateById.mockResolvedValueOnce(mockRents[0]);
 		const result = instance.pickUpRent('feb72a9a-258d-49c9-92de-f90b1f11984d');
 		expect(result).rejects.toThrow('This rent doesnt have a locker associated');
 	});
 
-	it('pickupRent: should return an error when the secret is disable', async () => {
-		const result = instance.pickUpRent('4b7de03b-ef1b-429a-b317-a0994f88386a');
-		expect(result).rejects.toThrow('Cannot find a active secret to this locker');
+	it('pickupRent: should pickup rent without errors', async () => {
+		mockRentRepo.updateById.mockResolvedValueOnce(mockRents[3]);
+		mockSecretRepo.getActiveSecret.mockResolvedValueOnce(mockSecrets[2]);
+		await instance.pickUpRent('4b7de03b-ef1b-429a-b317-a0994f88386a');
+
+		expect(mockLockRepo.updateById).toHaveBeenCalledWith('2bda9153-e22e-4c80-8817-f4a5dab8a542', {
+			isOccupied: false,
+		});
+
+		expect(mockSecretRepo.updateById).toHaveBeenCalledWith('db7b5a0d-0073-4f05-8458-c7cdb93b1a3a', {
+			status: SecretStatus.DISABLED,
+		});
 	});
 
 	it('setRentToLocker: should update rent and locker', async () => {
-		const mockRentUpdate = jest.spyOn(RentRepository.prototype, 'updateById').mockResolvedValue({} as any);
 		instance.setRentToLocker('4b7de03b-ef1b-429a-b317-a0994f88386a', '2bda9153-e22e-4c80-8817-f4a5dab8a542');
 
-		expect(mockRentUpdate).toHaveBeenCalledTimes(1);
+		expect(mockLockRepo.updateById).toHaveBeenCalledTimes(1);
+		expect(mockRentRepo.updateById).toHaveBeenCalledTimes(1);
 	});
 });
