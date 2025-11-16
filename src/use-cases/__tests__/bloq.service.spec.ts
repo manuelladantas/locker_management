@@ -14,7 +14,7 @@ describe('bloqService', () => {
 
 	beforeEach(() => {
 		jest.spyOn(BloqRepository.prototype, 'getBloqs').mockResolvedValueOnce(mockBloqs);
-		instance = new BloqService();
+		instance = new BloqService(new BloqRepository());
 	});
 
 	afterEach(() => {

@@ -6,9 +6,21 @@ import {
 	SetRentToLockerBody,
 	SetRentToLockerSchema,
 } from '../domain/locker/locker.schema';
+import { SecretsRepository } from '../infrastructure/repositories/secrets.repository';
+import { BloqRepository } from '../infrastructure/repositories/bloq.repository';
+import { LockerRepository } from '../infrastructure/repositories/locker.repository';
+import { RentRepository } from '../infrastructure/repositories/rent.repository';
 
 export async function lockerRoutes(fastify: FastifyInstance) {
-	const service = new LockerService();
+	const service = new LockerService(
+		new SecretsRepository(),
+		new BloqRepository(),
+		new LockerRepository(),
+		new RentRepository(),
+		// this.secretRepo = new SecretsRepository();
+		// this.bloqRepo = new BloqRepository();
+		// this.rentRepo = new RentRepository();
+	);
 
 	fastify.post('/locker/availableLocker/:rentId', async (req) => {
 		try {

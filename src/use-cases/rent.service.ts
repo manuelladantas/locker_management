@@ -8,9 +8,8 @@ export interface IRentService {
 }
 
 export class RentService implements IRentService {
-	private repo: IRentRepo;
-	constructor() {
-		this.repo = new RentRepository();
+	constructor(private repo: IRentRepo) {
+		this.repo = repo;
 	}
 
 	async createRent(weight: number, size: RentSize): Promise<Rent> {

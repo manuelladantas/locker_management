@@ -20,16 +20,22 @@ export interface ILockerService {
 }
 
 export class LockerService implements ILockerService {
-	private secretRepo: ISecretRepo;
-	private bloqRepo: IBloqRepo;
-	private repo: ILockerRepo;
-	private rentRepo: IRentRepo;
-	constructor() {
-		this.repo = new LockerRepository();
-		this.secretRepo = new SecretsRepository();
-		this.bloqRepo = new BloqRepository();
-		this.rentRepo = new RentRepository();
+	constructor(
+		private secretRepo: ISecretRepo,
+		private bloqRepo: IBloqRepo,
+		private repo: ILockerRepo,
+		private rentRepo: IRentRepo,
+	) {
+		this.repo = repo;
+		this.secretRepo = secretRepo;
+		this.bloqRepo = bloqRepo;
+		this.rentRepo = rentRepo;
 	}
+
+	// 	this.repo = new LockerRepository();
+	// this.secretRepo = new SecretsRepository();
+	// this.bloqRepo = new BloqRepository();
+	// this.rentRepo = new RentRepository();
 
 	async openLocker(id: string, password: string): Promise<Locker> {
 		const secret = await this.secretRepo.getSecret(id, password);

@@ -111,7 +111,12 @@ describe('lockerService', () => {
 		jest.spyOn(RentRepository.prototype, 'getRents').mockResolvedValueOnce(mockRents);
 		jest.spyOn(BloqRepository.prototype, 'getBloqs').mockResolvedValueOnce(mockBloqs);
 
-		instance = new LockerService();
+		instance = new LockerService(
+			new SecretsRepository(),
+			new BloqRepository(),
+			new LockerRepository(),
+			new RentRepository(),
+		);
 	});
 
 	afterEach(() => {

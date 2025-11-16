@@ -13,7 +13,7 @@ describe('rentService', () => {
 
 	beforeEach(() => {
 		jest.spyOn(RentRepository.prototype, 'getRents').mockResolvedValueOnce(mockRents);
-		instance = new RentService();
+		instance = new RentService(new RentRepository());
 	});
 
 	afterEach(() => {

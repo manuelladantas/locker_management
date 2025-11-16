@@ -2,9 +2,10 @@ import { FastifyInstance } from 'fastify';
 
 import { RentService } from '../use-cases/rent.service';
 import { RentBody, RentSchema } from '../domain/rent/rent.schema';
+import { RentRepository } from '../infrastructure/repositories/rent.repository';
 
 export async function rentRoutes(fastify: FastifyInstance) {
-	const service = new RentService();
+	const service = new RentService(new RentRepository());
 
 	fastify.post(
 		'/rent',

@@ -7,9 +7,8 @@ export interface IBloqService {
 }
 
 export class BloqService implements IBloqService {
-	private repo: IBloqRepo;
-	constructor() {
-		this.repo = new BloqRepository();
+	constructor(private repo: IBloqRepo) {
+		this.repo = repo;
 	}
 
 	async getAllBloqs(): Promise<Bloq[]> {
