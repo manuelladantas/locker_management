@@ -7,14 +7,14 @@ describe('bloqRepository', () => {
 
 	const mockBloqs = [
 		{
-			id: '22ffa3c5-3a3d-4f71-81f1-cac18ffbc510',
-			title: 'Bluberry Regent Street',
-			address: '121 Regent St, Mayfair, London W1B 4TB, United Kingdom',
+			id: '1ebb59be-51cb-4f55-b780-6dfb22197b80',
+			title: 'Test street 1',
+			address: 'Address test street',
 		},
 		{
-			id: '484e01be-1570-4ac1-a2a9-02aad3acc54e',
-			title: 'Riod Eixample',
-			address: "Pg. de Gràcia, 74, L'Eixample, 08008 Barcelona, Spain",
+			id: 'f3547d1b-6051-45b5-9cb8-616f549a1104',
+			title: 'Test street 2',
+			address: 'Address test street street',
 		},
 	];
 
@@ -27,21 +27,21 @@ describe('bloqRepository', () => {
 		jest.clearAllMocks();
 	});
 
-	it('should return the bloq when ID exists', async () => {
-		const result = await instance.getBloqById('22ffa3c5-3a3d-4f71-81f1-cac18ffbc510');
+	it('getBloqById: should return the bloq when ID exists', async () => {
+		const result = await instance.getBloqById('1ebb59be-51cb-4f55-b780-6dfb22197b80');
 
 		expect(result).toEqual(mockBloqs[0]);
 		expect(mockGetBloqs).toHaveBeenCalledTimes(1);
 	});
 
-	it('should return undefined when ID does not exist', async () => {
+	it('getBloqById: should return undefined when ID does not exist', async () => {
 		const result = await instance.getBloqById('1234355');
 
 		expect(result).toBeUndefined();
 	});
 
 	it('should call getBloqs method', async () => {
-		await instance.getBloqById('22ffa3c5-3a3d-4f71-81f1-cac18ffbc510');
+		await instance.getBloqById('1ebb59be-51cb-4f55-b780-6dfb22197b80');
 
 		expect(mockGetBloqs).toHaveBeenCalled();
 	});

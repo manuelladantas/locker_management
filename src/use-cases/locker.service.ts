@@ -57,9 +57,6 @@ export class LockerService implements ILockerService {
 		}
 		const availableLocker = await this.repo.getMatchedLocker(rent.weight);
 
-		if (!availableLocker) {
-			throw new Error('all lockers are occupied');
-		}
 		const code = Math.floor(100000 + Math.random() * 900000).toString();
 		const secret: Secret = {
 			id: randomUUID(),
@@ -98,14 +95,10 @@ export class LockerService implements ILockerService {
 	}
 
 	async setRentToLocker(id: string, lockerId: string): Promise<void> {
-		const rent = await this.rentRepo.updateById(id, {
+		this.rentRepo.updateById(id, {
 			status: RentStatus.WAITING_PICKUP,
 			lockerId: lockerId,
 		});
-
-		if (!rent) {
-			throw new Error('Cannot updated rent status');
-		}
 
 		this.repo.updateById(lockerId, {
 			isOccupied: true,

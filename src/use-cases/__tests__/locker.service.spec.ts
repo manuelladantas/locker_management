@@ -27,6 +27,12 @@ describe('lockerService', () => {
 			status: SecretStatus.ENABLE,
 			password: '095494',
 		},
+		{
+			id: 'db7b5a0d-0073-4f05-8458-c7cdb93b1a3a',
+			lockerId: '2bda9153-e22e-4c80-8817-f4a5dab8a542',
+			status: SecretStatus.DISABLED,
+			password: '998877',
+		},
 	];
 
 	const mockLockers = [
@@ -51,6 +57,13 @@ describe('lockerService', () => {
 			isOccupied: false,
 			maxWeight: 20,
 		},
+		{
+			id: '2bda9153-e22e-4c80-8817-f4a5dab8a542',
+			bloqId: '22ffa3c5-3a3d-4f71-81f1-cac18ffbc510',
+			status: LockerStatus.CLOSED,
+			isOccupied: false,
+			maxWeight: 20,
+		},
 	];
 
 	const mockRents = [
@@ -68,6 +81,20 @@ describe('lockerService', () => {
 			size: RentSize.XL,
 			status: RentStatus.CREATED,
 		},
+		{
+			id: 'ea5c5086-ca10-4920-90da-3367b1261885',
+			lockerId: null,
+			weight: 90,
+			size: RentSize.XL,
+			status: RentStatus.CREATED,
+		},
+		{
+			id: '4b7de03b-ef1b-429a-b317-a0994f88386a',
+			lockerId: '2bda9153-e22e-4c80-8817-f4a5dab8a542',
+			weight: 10,
+			size: RentSize.S,
+			status: RentStatus.WAITING_PICKUP,
+		},
 	];
 
 	const mockBloqs = [
@@ -83,6 +110,7 @@ describe('lockerService', () => {
 		jest.spyOn(LockerRepository.prototype, 'getLockers').mockResolvedValueOnce(mockLockers);
 		jest.spyOn(RentRepository.prototype, 'getRents').mockResolvedValueOnce(mockRents);
 		jest.spyOn(BloqRepository.prototype, 'getBloqs').mockResolvedValueOnce(mockBloqs);
+
 		instance = new LockerService();
 	});
 
@@ -90,44 +118,61 @@ describe('lockerService', () => {
 		jest.clearAllMocks();
 	});
 
-	it('should open locker with right password', async () => {
+	it('openLocker: should open locker with right password', async () => {
 		const result = await instance.openLocker('1b8d1e89-2514-4d91-b813-044bf0ce8d20', '095494');
 
 		expect(result).toHaveProperty('status', LockerStatus.OPEN);
 	});
 
-	it('should not open locker with wrong password', async () => {
+	it('openLocker: should not open locker with wrong password', async () => {
 		const result = instance.openLocker('1b8d1e89-2514-4d91-b813-044bf0ce8d20', '959505');
 
 		expect(result).rejects.toThrow('Wrong secret');
 	});
 
-	it('should close a locker', async () => {
+	it('closeLocker: should close a locker', async () => {
 		const result = await instance.closeLocker('1b8d1e89-2514-4d91-b813-044bf0ce8d20');
 
 		expect(result).toHaveProperty('status', LockerStatus.CLOSED);
 	});
 
-	it('should throw a error when locker doesnt exist', async () => {
+	it('closeLocker: should throw a error when locker doesnt exist', async () => {
 		const result = instance.closeLocker('000000000');
 
 		expect(result).rejects.toThrow('Locker doesnt exists');
 	});
 
-	it('should get a available locker', async () => {
+	it('getAvailableLocker: should get a available locker', async () => {
 		const result = await instance.getAvailableLocker('84ba232e-ce23-4d8f-ae26-68616600df48');
 		expect(result).toMatch(
 			/lockerId: 1b8d1e89-2514-4d91-b813-044bf0ce8d20 - secret: \d{6} - bloq address: 121 Regent St, Mayfair, London W1B 4TB, United Kingdom/,
 		);
 	});
 
-	it('should throw an error when rent doenst exists', async () => {
+	it('getAvailableLocker: should throw an error when rent doenst exists', async () => {
 		const result = instance.getAvailableLocker('000000000');
 		expect(result).rejects.toThrow('Cannot find rent');
 	});
 
-	it('should throw an error when rent doenst exists', async () => {
-		const result = instance.getAvailableLocker('000000000');
-		expect(result).rejects.toThrow('Cannot find rent');
+	it('getAvailableLocker: should throw an error when rent doenst exists', async () => {
+		const result = instance.getAvailableLocker('ea5c5086-ca10-4920-90da-3367b1261885');
+		expect(result).rejects.toThrow('Cannot find a locker to this rent');
+	});
+
+	it('pickupRent: should return an error when pass a rent without a locker associated', async () => {
+		const result = instance.pickUpRent('feb72a9a-258d-49c9-92de-f90b1f11984d');
+		expect(result).rejects.toThrow('This rent doesnt have a locker associated');
+	});
+
+	it('pickupRent: should return an error when the secret is disable', async () => {
+		const result = instance.pickUpRent('4b7de03b-ef1b-429a-b317-a0994f88386a');
+		expect(result).rejects.toThrow('Cannot find a active secret to this locker');
+	});
+
+	it('setRentToLocker: should update rent and locker', async () => {
+		const mockRentUpdate = jest.spyOn(RentRepository.prototype, 'updateById').mockResolvedValue({} as any);
+		instance.setRentToLocker('4b7de03b-ef1b-429a-b317-a0994f88386a', '2bda9153-e22e-4c80-8817-f4a5dab8a542');
+
+		expect(mockRentUpdate).toHaveBeenCalledTimes(1);
 	});
 });

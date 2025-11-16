@@ -12,15 +12,15 @@ describe('rentRepository', () => {
 
 	const mockRents = [
 		{
-			id: '84ba232e-ce23-4d8f-ae26-68616600df48',
-			lockerId: '6b33b2d1-af38-4b60-a3c5-53a69f70a351',
+			id: '613c1876-d132-448a-8bac-b589c54d1b3e',
+			lockerId: 'e74d04e1-4197-4cb9-a073-4db7224887ee',
 			weight: 10,
 			size: RentSize.XL,
 			status: RentStatus.WAITING_DROPOFF,
 		},
 		{
-			id: '473f5496-3539-47ca-892d-2cf97cc2c283',
-			lockerId: '6b33b2d1-af38-4b60-a3c5-53a69f70a351',
+			id: 'f82785a9-1208-4ef4-80ab-2dc287a34e11',
+			lockerId: 'e74d04e1-4197-4cb9-a073-4db7224887ee',
 			weight: 30,
 			size: RentSize.XL,
 			status: RentStatus.DELIVERED,
@@ -38,27 +38,27 @@ describe('rentRepository', () => {
 		jest.clearAllMocks();
 	});
 
-	it('should return the rent when ID exists', async () => {
-		const result = await instance.getRentById('473f5496-3539-47ca-892d-2cf97cc2c283');
+	it('getRentById: should return the rent when ID exists', async () => {
+		const result = await instance.getRentById('f82785a9-1208-4ef4-80ab-2dc287a34e11');
 
 		expect(result).toEqual(mockRents[1]);
 	});
 
-	it('should return undefined when ID does not exists', async () => {
+	it('getRentById: should return undefined when ID does not exists', async () => {
 		const result = await instance.getRentById('34934993');
 
 		expect(result).toBeUndefined();
 	});
 
-	it('should update rent by id', async () => {
-		await instance.updateById('473f5496-3539-47ca-892d-2cf97cc2c283', {
+	it('updateById: should update rent by id', async () => {
+		await instance.updateById('f82785a9-1208-4ef4-80ab-2dc287a34e11', {
 			status: RentStatus.WAITING_PICKUP,
 		});
 
 		expect(fs.writeFile).toHaveBeenCalled();
 	});
 
-	it('should not update rent by id when id doesnt exist', async () => {
+	it('updateById: should not update rent by id when id doesnt exist', async () => {
 		const result = instance.updateById('9482394823', {
 			status: RentStatus.WAITING_PICKUP,
 		});
@@ -66,7 +66,7 @@ describe('rentRepository', () => {
 		expect(result).rejects.toThrow('This rent doesnt exist');
 	});
 
-	it('should create a rent', async () => {
+	it('createRent: should create a rent', async () => {
 		await instance.createRent({
 			id: '513bc20e-41a8-4175-8001-e5f99fd9652c',
 			lockerId: '1b8d1e89-2514-4d91-b813-044bf0ce8d20',

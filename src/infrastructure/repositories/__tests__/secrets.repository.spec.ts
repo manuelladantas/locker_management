@@ -11,14 +11,14 @@ describe('secretRepository', () => {
 
 	const mockSecrets = [
 		{
-			id: 'c1f04109-a9b1-43c4-989f-48c23386ae20',
-			lockerId: '8b4b59ae-8de5-4322-a426-79c29315a9f1',
+			id: '396b2b0d-9fe2-4d71-99e9-c28dc44cf25c',
+			lockerId: '880bb14c-28ff-492d-abf2-dd85e7b8f7b8',
 			status: SecretStatus.ENABLE,
 			password: '403703',
 		},
 		{
-			id: '466201da-890e-4e47-80a0-61d5ba0d0883',
-			lockerId: '8b4b59ae-8de5-4322-a426-79c29315a9f1',
+			id: 'cc4d2fa6-0747-43f5-880a-1a5ddbfeb582',
+			lockerId: '880bb14c-28ff-492d-abf2-dd85e7b8f7b8',
 			status: SecretStatus.DISABLED,
 			password: '095494',
 		},
@@ -33,33 +33,33 @@ describe('secretRepository', () => {
 		jest.clearAllMocks();
 	});
 
-	it('should return the secret when exists', async () => {
-		const result = await instance.getSecret('8b4b59ae-8de5-4322-a426-79c29315a9f1', '403703');
+	it('getSecrets: hould return the secret when exists', async () => {
+		const result = await instance.getSecret('880bb14c-28ff-492d-abf2-dd85e7b8f7b8', '403703');
 
 		expect(result).toEqual(mockSecrets[0]);
 	});
 
-	it('should return undefined when the password is wrong', async () => {
-		const result = await instance.getSecret('8b4b59ae-8de5-4322-a426-79c29315a9f1', '0000000');
+	it('getSecret: should return undefined when the password is wrong', async () => {
+		const result = await instance.getSecret('880bb14c-28ff-492d-abf2-dd85e7b8f7b8', '0000000');
 
 		expect(result).toBeUndefined();
 	});
 
-	it('should get the activate secret', async () => {
-		const result = await instance.getActiveSecret('8b4b59ae-8de5-4322-a426-79c29315a9f1');
+	it('getActiveSecret: should get the activate secret', async () => {
+		const result = await instance.getActiveSecret('880bb14c-28ff-492d-abf2-dd85e7b8f7b8');
 
 		expect(result).toEqual(mockSecrets[0]);
 	});
 
-	it('should update secret by locker id', async () => {
-		await instance.updateById('c1f04109-a9b1-43c4-989f-48c23386ae20', {
+	it('updateById: should update secret by locker id', async () => {
+		await instance.updateById('396b2b0d-9fe2-4d71-99e9-c28dc44cf25c', {
 			status: SecretStatus.DISABLED,
 		});
 
 		expect(fs.writeFile).toHaveBeenCalled();
 	});
 
-	it('should not update rent by id when id doesnt exist', async () => {
+	it('updateById: should not update rent by id when id doesnt exist', async () => {
 		const result = instance.updateById('0293023902930', {
 			status: SecretStatus.DISABLED,
 		});
@@ -67,7 +67,7 @@ describe('secretRepository', () => {
 		expect(result).rejects.toThrow('This secret doesnt exist');
 	});
 
-	it('should create a secret', async () => {
+	it('createSecret: should create a secret', async () => {
 		await instance.createSecret({
 			id: '3e6b86e1-083f-45a4-b5c1-d29fbfb9cd5f',
 			lockerId: 'f604f9e2-d413-464b-8766-6b0a8ce0a66c',
