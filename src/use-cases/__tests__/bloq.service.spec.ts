@@ -6,9 +6,9 @@ describe('bloqService', () => {
 
 	const mockBloqs = [
 		{
-			id: '22ffa3c5-3a3d-4f71-81f1-cac18ffbc510',
-			title: 'Bluberry Regent Street',
-			address: '121 Regent St, Mayfair, London W1B 4TB, United Kingdom',
+			id: '4592a6f2-a81e-4f80-b7b5-caf17ec4c5a2',
+			title: 'Test street',
+			address: 'Test street address',
 		},
 	];
 
@@ -25,6 +25,6 @@ describe('bloqService', () => {
 		const bloqs = await instance.getAllBloqs();
 
 		expect(bloqs).toHaveLength(1);
-		expect(bloqs[0]).toHaveProperty('title', 'Bluberry Regent Street');
+		expect(bloqs[0]).toHaveProperty('title', 'Test street');
 	});
 });
