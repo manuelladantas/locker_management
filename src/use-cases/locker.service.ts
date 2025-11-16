@@ -2,14 +2,10 @@ import { randomUUID } from 'crypto';
 import IBloqRepo from '../domain/bloq/bloq.repo';
 import { Locker, LockerStatus } from '../domain/locker/locker';
 import ILockerRepo from '../domain/locker/locker.repo';
-import { Rent, RentStatus } from '../domain/rent/rent';
+import { RentStatus } from '../domain/rent/rent';
 import IRentRepo from '../domain/rent/rent.repo';
 import { Secret, SecretStatus } from '../domain/secrets/secrets';
 import ISecretRepo from '../domain/secrets/secrets.repo';
-import { BloqRepository } from '../infrastructure/repositories/bloq.repository';
-import { LockerRepository } from '../infrastructure/repositories/locker.repository';
-import { RentRepository } from '../infrastructure/repositories/rent.repository';
-import { SecretsRepository } from '../infrastructure/repositories/secrets.repository';
 
 export interface ILockerService {
 	openLocker(id: string, password: string): Promise<Locker>;
@@ -31,11 +27,6 @@ export class LockerService implements ILockerService {
 		this.bloqRepo = bloqRepo;
 		this.rentRepo = rentRepo;
 	}
-
-	// 	this.repo = new LockerRepository();
-	// this.secretRepo = new SecretsRepository();
-	// this.bloqRepo = new BloqRepository();
-	// this.rentRepo = new RentRepository();
 
 	async openLocker(id: string, password: string): Promise<Locker> {
 		const secret = await this.secretRepo.getSecret(id, password);
