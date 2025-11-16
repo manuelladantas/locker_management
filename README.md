@@ -36,6 +36,7 @@ This API aims to facilitate the process of assisting first, middle, and last-mil
 
 - Node.js
 - TypeScript
+- Fastify
 - Jest (Testing)
 
 ## 📝 API Features
