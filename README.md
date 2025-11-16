@@ -32,8 +32,6 @@ This API aims to facilitate the process of assisting first, middle, and last-mil
 
 ![Flow Diagram](./mainFlows.png)
 
-*Add your flow diagram image here*
-
 ## 🔧 Technologies Used
 
 - Node.js
